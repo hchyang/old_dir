@@ -19,9 +19,8 @@ signal(SIGPIPE,SIG_DFL)
 
 def main():
     parse=argparse.ArgumentParser(description='a script to find old directories')
-    default='./'
-    parse.add_argument('-d','--dir',type=str,metavar='DIR',default=default,
-        help='check the usage under this directory [{}]'.format(default))
+    parse.add_argument('dir',type=str,metavar='DIR',nargs='+',
+        help='check the usage under this directory')
     default=365
     parse.add_argument('-o','--old',type=int,metavar='DAY',default=default,
         help='only directory older than DAY will be output [{}]'.format(default))
@@ -32,10 +31,6 @@ def main():
         help='the max levels (depth) to descend')
     args=parse.parse_args()
 
-    if len(sys.argv) < 2:
-        parse.print_help()
-        sys.exit(1)
-
     now=int(subprocess.getoutput('date +%s'))
     span=args.old*24*60*60
     before=now-span
@@ -43,7 +38,7 @@ def main():
     duArgs=['du','-m','--time=ctime','--time-style=iso']
     if args.level:
         duArgs.append('--max-depth={}'.format(args.level))
-    duArgs.append(args.dir)
+    duArgs.extend(args.dir)
     du=subprocess.Popen(args=duArgs,stdout=subprocess.PIPE)
     awkArgs=['awk','$1>{} && $2<"{}"'.format(args.minSize,date)]
     awk=subprocess.Popen(args=awkArgs,stdin=du.stdout,stdout=subprocess.PIPE)
