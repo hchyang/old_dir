@@ -24,10 +24,17 @@ def main():
         help='check the usage under this directory [{}]'.format(default))
     default=365
     parse.add_argument('-o','--old',type=int,metavar='DAY',default=default,
-        help='only directory older than DAY will be output')
+        help='only directory older than DAY will be output [{}]'.format(default))
+    default=1024
+    parse.add_argument('-m','--minSize',type=int,metavar='N',default=default,
+        help='only directory larger than N (Mb) will be output [{}]'.format(default))
     parse.add_argument('-l','--level',type=int,metavar='N',
         help='the max levels (depth) to descend')
     args=parse.parse_args()
+
+    if len(sys.argv) < 2:
+        parse.print_help()
+        sys.exit(1)
 
     now=int(subprocess.getoutput('date +%s'))
     span=args.old*24*60*60
@@ -38,7 +45,7 @@ def main():
         duArgs.append('--max-depth={}'.format(args.level))
     duArgs.append(args.dir)
     du=subprocess.Popen(args=duArgs,stdout=subprocess.PIPE)
-    awkArgs=['awk','$2<"{}"'.format(date)]
+    awkArgs=['awk','$1>{} && $2<"{}"'.format(args.minSize,date)]
     awk=subprocess.Popen(args=awkArgs,stdin=du.stdout,stdout=subprocess.PIPE)
     end_of_pipe=awk.stdout
 
