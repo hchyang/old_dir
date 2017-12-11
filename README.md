@@ -1,5 +1,5 @@
 # old_dir_finder
-A Python script to find out big old directories. It's Linux only, because it depends on `du` and `date` command.
+A Python3 script to find out big old directories. It's Linux only, because it depends on `du` and `date` command.
 
 ## Installation
 
